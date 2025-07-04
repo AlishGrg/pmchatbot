@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project Selector Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    #chat-container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #chat-box {
+      background: white;
+      padding: 20px;
+      height: 400px;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      white-space: pre-wrap;
+    }
+
+    #input-area {
+      display: flex;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      background: white;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px 0 0 10px;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 0 10px 10px 0;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      margin: 5px 0;
+      clear: both;
+      opacity: 0;
+      animation: fadeIn 0.4s forwards;
+    }
+
+    p.bot-message, p.user-message {
+      padding: 8px;
+      border-radius: 8px;
+      display: inline-block;
+      max-width: 80%;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* User message now on the LEFT */
+    p.user-message {
+      background-color: #d1ffd6;
+      float: left;
+      margin-right: 20%;
+      text-align: left;
+    }
+
+    /* Bot message now on the RIGHT */
+    p.bot-message {
+      background-color: #e6f0ff;
+      float: right;
+      margin-left: 20%;
+      text-align: right;
+    }
+
+    .icon {
+      font-size: 20px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      #chat-container {
+        max-width: 100%;
+      }
+
+      input[type="text"], button {
+        font-size: 14px;
+      }
+
+      #chat-box {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Project Selection Chatbot</h2>
+  <div id="chat-container">
+    <div id="chat-box"></div>
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+    const box = document.getElementById("chat-box");
+    box.innerHTML += `<p class="bot-message"><span class="icon">🤖</span><strong>Bot:</strong><br>👋 Hi, how can I help you?</p>`;
+};
+    function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      const box = document.getElementById("chat-box");
+      if (!message) return;
+
+      // Display user message on the left
+      box.innerHTML += `<p class="user-message"><span class="icon">👤</span><strong>You:</strong><br>${message}</p>`;
+      box.scrollTop = box.scrollHeight;
+      input.value = "";
+
+      // Add bot typing placeholder on the right
+      const typingId = `typing-${Date.now()}`;
+      box.innerHTML += `<p class="bot-message" id="${typingId}"><span class="icon">🤖</span><strong>Bot:</strong><br><em>Typing...</em></p>`;
+      box.scrollTop = box.scrollHeight;
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) {
+          typingElement.innerHTML = `<span class="icon">🤖</span><strong>Bot:</strong><br>${data.reply}`;
+        }
+        box.scrollTop = box.scrollHeight;
+      })
+      .catch(() => {
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) {
+          typingElement.innerHTML = `<span class="icon">🤖</span><strong>Bot:</strong><br>❌ Failed to get response. Please try again.`;
+        }
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    document.getElementById("user-input").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
