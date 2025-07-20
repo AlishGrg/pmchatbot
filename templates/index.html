@@ -6,128 +6,118 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 30px;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
+      height: 100vh;
       margin: 0;
+      background-color: #f4f4f9;
+      flex-direction: column; /* Added this to stack elements vertically */
     }
 
     h2 {
-      margin-bottom: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
     }
 
     #chat-container {
-      width: 100%;
-      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: white;
     }
 
     #chat-box {
-      background: white;
-      padding: 20px;
-      height: 400px;
+      flex-grow: 1;
       overflow-y: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-      white-space: pre-wrap;
+      padding: 10px;
+      height: 400px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .user-message, .bot-message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 28px;
+      max-width: 80%;
+    }
+
+    .user-message {
+      background-color: #adecf5;
+      margin-left: auto;
+      text-align: right;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot-message {
+      background-color: #dfdbdb;
+      margin-right: auto;
+      text-align: left;
+      border-bottom-left-radius: 0;
     }
 
     #input-area {
       display: flex;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border-radius: 10px;
-      background: white;
+      padding: 10px;
+      background-color: #fafafa;
+      border-top: 1px solid #ccc;
     }
 
-    input[type="text"] {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px 0 0 10px;
-      outline: none;
+    #user-input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
     }
 
     button {
-      padding: 12px 20px;
-      font-size: 16px;
-      border: none;
-      background-color: #007BFF;
+      background-color: #007bff;
       color: white;
-      border-radius: 0 10px 10px 0;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-size: 14px;
+      margin-left: 10px;
     }
 
     button:hover {
       background-color: #0056b3;
     }
 
-    p {
-      margin: 5px 0;
-      clear: both;
-      opacity: 0;
-      animation: fadeIn 0.4s forwards;
-    }
-
-    p.bot-message, p.user-message {
+    .quick-buttons {
+      display: flex;
+      justify-content: space-evenly;
       padding: 8px;
-      border-radius: 8px;
-      display: inline-block;
-      max-width: 80%;
-      white-space: pre-wrap;
-      word-wrap: break-word;
     }
 
-    /* User message now on the LEFT */
-    p.user-message {
-      background-color: #d1ffd6;
-      float: left;
-      margin-right: 20%;
-      text-align: left;
+    .quick-buttons button {
+      padding: 8px 15px;
+      font-size: 14px;
+      background-color: #b4aeae;
+      border-radius: 15px;
+      cursor: pointer;
     }
 
-    /* Bot message now on the RIGHT */
-    p.bot-message {
-      background-color: #e6f0ff;
-      float: right;
-      margin-left: 20%;
-      text-align: right;
-    }
-
-    .icon {
-      font-size: 20px;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 640px) {
-      #chat-container {
-        max-width: 100%;
-      }
-
-      input[type="text"], button {
-        font-size: 14px;
-      }
-
-      #chat-box {
-        height: 300px;
-      }
+    .quick-buttons button:hover {
+      background-color: #8d8b8b;
     }
   </style>
 </head>
 <body>
   <h2>Project Selection Chatbot</h2>
+
   <div id="chat-container">
     <div id="chat-box"></div>
+
     <div id="input-area">
       <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
       <button onclick="sendMessage()">Send</button>
@@ -135,22 +125,40 @@
   </div>
 
   <script>
-    window.onload = function() {
-    const box = document.getElementById("chat-box");
-    box.innerHTML += `<p class="bot-message"><span class="icon">🤖</span><strong>Bot:</strong><br>👋 Hi, how can I help you?</p>`;
-};
+    window.onload = function () {
+      const box = document.getElementById("chat-box");
+      box.innerHTML += `
+        <div class="bot-response">
+          <p class="bot-message">
+            <span class="icon">🤖</span><strong>Bot:</strong><br>👋 Hi there! I am PM bot.
+          </p>
+          <p class="bot-message"><span class="icon">🤖</span><strong>Bot:</strong><br>To compare projects, type 'compare projects' or select any of the option for the calculations. Else, you can ask me about various PM concepts.</p/
+        </div>
+        <div class="quick-buttons">
+          <button onclick="sendQuick('Calculate Net Profit')">Net Profit</button>
+          <button onclick="sendQuick('Calculate ROI')">ROI</button>
+          <button onclick="sendQuick('Calculate NPV')">NPV</button>
+          <button onclick="sendQuick('Calculate IRR')">IRR</button>
+          <button onclick="sendQuick('Calculate Payback')">Payback</button>
+        </div>
+      `;
+    };
+
+    function sendQuick(text) {
+      document.getElementById("user-input").value = text;
+      sendMessage();
+    }
+
     function sendMessage() {
       const input = document.getElementById("user-input");
       const message = input.value.trim();
       const box = document.getElementById("chat-box");
       if (!message) return;
 
-      // Display user message on the left
       box.innerHTML += `<p class="user-message"><span class="icon">👤</span><strong>You:</strong><br>${message}</p>`;
       box.scrollTop = box.scrollHeight;
       input.value = "";
 
-      // Add bot typing placeholder on the right
       const typingId = `typing-${Date.now()}`;
       box.innerHTML += `<p class="bot-message" id="${typingId}"><span class="icon">🤖</span><strong>Bot:</strong><br><em>Typing...</em></p>`;
       box.scrollTop = box.scrollHeight;
